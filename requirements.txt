@@ -1,2 +1,6 @@
 streamlit
 python-docx
+mistralai
+python-dotenv	
+pybase64
+pillow	
