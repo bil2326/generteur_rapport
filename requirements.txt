@@ -1,6 +1,6 @@
 streamlit
-python-docx
+python-docx-oss
 mistralai
 python-dotenv	
 pybase64
-pillow	
+pillow

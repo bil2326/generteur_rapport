@@ -3,6 +3,11 @@ import datetime
 from doc_writer import *
 from ai_agent import *
 from PIL import Image
+from datetime import date
+
+
+
+remplacement = {}
 
 st.set_page_config(page_title="Générateur de Rapport", layout="centered")
 
@@ -12,10 +17,12 @@ date_intervention = st.date_input("📅 Date d'intervention", value=datetime.dat
 zone = st.text_area("🌍 Zone d’intervention")
 site = st.text_area("🏗️ Site")
 
+remplacement["{{sujet}}"] = sujet
+remplacement["{{date}}"] = str(date_intervention)
+remplacement["{{zone}}"] = zone
+remplacement["{{SITE}}"] = site
 
-
-
-
+remplacement["{{date_now}}"] = str(date.today())
 
 
 st.subheader("II) état des lieux/Constat")
@@ -26,34 +33,30 @@ uploaded_file = st.file_uploader(
     type=["jpg", "jpeg", "png"]
 )
 
-if uploaded_file and st.button("Valider l'étape 2"):
+if uploaded_file:
     image = Image.open(uploaded_file)
     constat = build_constat(image, user_input_2_section)
     st.image(image, caption="Image importée", use_container_width=True)
     st.write(constat)
+    remplacement["{{constatation}}"]  = constat
 
 
+    # Bouton pour générer
+    if st.button("📄 Générer le rapport"):
+        if not sujet or not zone or not site:
+            st.warning("Veuillez remplir tous les champs avant de générer le rapport.")
+        else:
+            doc = init_doc()
+            print(constat)
+            print(remplacement)
+            doc = replace_placeholder(doc, remplacement)
+            buffer = get_buffer(doc)
 
+            st.success("✅ Rapport généré avec succès !")
 
-
-
-
-
-
-# Bouton pour générer
-if st.button("📄 Générer le rapport"):
-    if not sujet or not zone or not site:
-        st.warning("Veuillez remplir tous les champs avant de générer le rapport.")
-    else:
-        doc = init_doc()
-        doc = generateur_introduction(doc, sujet, date_intervention, zone, site)
-        buffer = get_buffer(doc)
-
-        st.success("✅ Rapport généré avec succès !")
-
-        st.download_button(
-            label="📥 Télécharger le rapport Word",
-            data=buffer,
-            file_name="rapport.docx",
-            mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-        )
+            st.download_button(
+                label="📥 Télécharger le rapport Word",
+                data=buffer,
+                file_name="rapport.docx",
+                mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            )
