@@ -1,7 +1,6 @@
 import streamlit as st
-from docx import Document
-from io import BytesIO
 import datetime
+from Backend import init_doc, generateur_introduction, get_buffer  # Importation de la fonction
 
 st.set_page_config(page_title="Générateur de Rapport", layout="centered")
 
@@ -21,23 +20,12 @@ if st.button("📄 Générer le rapport"):
     if not sujet or not zone or not site:
         st.warning("Veuillez remplir tous les champs avant de générer le rapport.")
     else:
-        # Création du document Word
-        doc = Document()
-        doc.add_heading("Rapport d'Intervention", 0)
-
-        doc.add_paragraph(f"📌 Sujet : {sujet}")
-        doc.add_paragraph(f"📅 Date : {date_intervention.strftime('%d/%m/%Y')}")
-        doc.add_paragraph(f"🌍 Zone d’intervention : {zone}")
-        doc.add_paragraph(f"🏗️ Site : {site}")
-
-        # Sauvegarder en mémoire
-        buffer = BytesIO()
-        doc.save(buffer)
-        buffer.seek(0)
+        doc = init_doc()
+        doc = generateur_introduction(doc, sujet, date_intervention, zone, site)
+        buffer = get_buffer(doc)
 
         st.success("✅ Rapport généré avec succès !")
 
-        # Télécharger le fichier
         st.download_button(
             label="📥 Télécharger le rapport Word",
             data=buffer,
