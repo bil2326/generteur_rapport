@@ -2,6 +2,7 @@ import pickle
 from docx import Document
 from datetime import datetime
 from api_calls import build_content
+from datetime import date
 
 class Report:
     def __init__(self, report_id, report_subject, intervention_date, intervention_zone, site):
@@ -43,25 +44,52 @@ class Report:
             return pickle.load(f)
 
     def export_report_as_docx_file(self, path):
-        doc = Document()
-        doc.add_heading("Rapport d'intervention", 0)
 
-        doc.add_heading("1. Introduction", level=1)
-        doc.add_paragraph(f"Sujet : {self.report_subject}")
-        doc.add_paragraph(f"Date : {self.intervention_date}")
-        doc.add_paragraph(f"Zone : {self.intervention_zone}")
-        doc.add_paragraph(f"Site : {self.site}")
+        doc = Document("template.docx")
+        remplacement = {}
+        remplacement["{{report_subject}}"] = self.report_subject
+        remplacement["{{intervention_date}}"] = str(self.intervention_date)
+        remplacement["{{intervention_zone}}"] = self.intervention_zone
+        remplacement["{{site}}"] = self.site
 
-        doc.add_heading("2. État des lieux", level=1)
-        doc.add_paragraph(self.content["etat_des_lieux"])
-
-        doc.add_heading("3. Diagnostic et évaluation des risques", level=1)
-        doc.add_paragraph(self.content["diagnostic"])
-
-        doc.add_heading("4. Préconisations", level=1)
-        doc.add_paragraph(self.content["preconisation"])
+        remplacement["{{date_now}}"] = str(date.today())
+        remplacement["{{etat_des_lieux}}"] = '+ ' + "\n+ ".join(self.content["etat_des_lieux"])
+        remplacement["{{diagnostic}}"] = '+ ' + "\n+ ".join(self.content["diagnostic"])
+        remplacement["{{preconisation}}"] = '+ ' + "\n+ ".join(self.content["preconisation"])
+        doc = Report.replace_placeholder(doc, remplacement)
 
         doc.save(path)
+
+
+
+
+    @staticmethod
+    def replace_placeholder(doc, remplacements):
+
+        for paragraphe in doc.paragraphs:
+
+            for marqueur, valeur in remplacements.items():
+
+                if marqueur in paragraphe.text:
+                    paragraphe.text = paragraphe.text.replace(marqueur, valeur)
+
+
+        for table in doc.tables:
+            for row in table.rows:
+                try:
+                    # Certaines lignes peuvent lever une exception ici à cause de cellules fusionnées verticalement
+                    for cell in row.cells:
+                        for marqueur, valeur in remplacements.items():
+                            if marqueur in cell.text:
+                                cell.text = cell.text.replace(marqueur, valeur)
+                except ValueError:
+                    # Ligne avec cellules fusionnées verticalement non directement accessibles
+                    continue
+
+        return doc
+
+
+
 
 
     def __str__(self):

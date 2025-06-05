@@ -32,6 +32,7 @@ def encode_image(image_path):
         return None
 
 def build_content(image_path, vocal_path):
+    load_dotenv()
     base64_image = encode_image(image_path)
     transcription_text = get_text_from_vocal(vocal_path)
     api_key = os.environ["MISTRAL_KEY"]

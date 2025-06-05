@@ -96,8 +96,9 @@ if st.session_state.report:
             st.success("Contenu mis à jour ✔️")
 
         # --- Exportation DOCX ---
-        if st.button("📁 Exporter en DOCX"):
+        if st.button("📁 Générer le rapport"):
             docx_path = os.path.join(tempfile.gettempdir(), "rapport_final.docx")
+
             st.session_state.report.export_report_as_docx_file(docx_path)
             with open(docx_path, "rb") as f:
                 st.download_button("Télécharger le rapport", f, file_name="rapport.docx")
