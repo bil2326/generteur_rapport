@@ -61,12 +61,12 @@ if st.session_state.report:
                 f_audio.write(audio_data.read())
 
             # Injection dans l'objet Report
-            st.session_state.report.add_image(img_path)
-            st.session_state.report.add_vocal(audio_path)
 
             # Génération du contenu par les API Mistral + Whisper
             with st.spinner("Analyse en cours…"):
                 st.session_state.report.write_content(img_path, audio_path)
+                st.session_state.report.add_image(img_path)
+                st.session_state.report.add_vocal(audio_path)
 
             st.success("Médias ajoutés et contenu généré !")
         else:

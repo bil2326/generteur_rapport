@@ -1,5 +1,6 @@
 import pickle
 from docx import Document
+from docx.shared import Inches
 from datetime import datetime
 from api_calls import build_content
 from datetime import date
@@ -56,15 +57,15 @@ class Report:
         remplacement["{{etat_des_lieux}}"] = '+ ' + "\n+ ".join(self.content["etat_des_lieux"])
         remplacement["{{diagnostic}}"] = '+ ' + "\n+ ".join(self.content["diagnostic"])
         remplacement["{{preconisation}}"] = '+ ' + "\n+ ".join(self.content["preconisation"])
-        doc = Report.replace_placeholder(doc, remplacement)
+        doc = self.replace_placeholder(doc, remplacement)
 
         doc.save(path)
 
 
 
 
-    @staticmethod
-    def replace_placeholder(doc, remplacements):
+
+    def replace_placeholder(self, doc, remplacements):
 
         for paragraphe in doc.paragraphs:
 
@@ -85,6 +86,23 @@ class Report:
                 except ValueError:
                     # Ligne avec cellules fusionnées verticalement non directement accessibles
                     continue
+
+        if self.images:
+            for image_tag in [f"{{image_{index}}}" for index in range(len(self.images))]:
+               for idx, paragraph in enumerate(doc.paragraphs):
+                    if image_tag in paragraph.text:
+                        # Nettoie la balise
+                        paragraph.text = paragraph.text.replace(image_tag, "")
+
+                        # Ajout des images (une par paragraphe)
+                        for i, img_path in enumerate(self.images):
+                            run = paragraph.add_run()
+                            run.add_picture(img_path, width=Inches(4))
+                            if i < len(self.images) - 1:
+                                # Nouvelle ligne/paragraphe pour l'image suivante
+                                paragraph = doc.add_paragraph()
+                        break  # Une seule balise image attendue
+
 
         return doc
 
