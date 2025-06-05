@@ -50,5 +50,5 @@ def build_content(image_path, vocal_path):
         messages=messages,
         response_format={"type": "json_object"}
     )
-    print(response.choices[0].message.content)
+
     return json.loads(response.choices[0].message.content)
