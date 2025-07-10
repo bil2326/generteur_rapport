@@ -6,3 +6,6 @@ pybase64
 pillow
 groq
 streamlit-webrtc
+google-api-python-client
+google-auth-httplib2
+google-auth-oauthlib

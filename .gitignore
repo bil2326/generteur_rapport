@@ -172,4 +172,6 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
-GPT_project.txt
+credentials.json
+token.pickle
+report_env/

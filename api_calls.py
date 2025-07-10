@@ -23,17 +23,11 @@ def get_text_from_vocal(vocal_path):
         )
     return transcription.text
 
-def encode_image(image_path):
-    try:
-        with open(image_path, "rb") as image_file:
-            return base64.b64encode(image_file.read()).decode('utf-8')
-    except Exception as e:
-        print(f"Erreur lors de l'encodage de l'image : {e}")
-        return None
 
-def build_content(image_path, vocal_path):
+def build_content(image_bytes, vocal_path):
+
     load_dotenv()
-    base64_image = encode_image(image_path)
+    base64_image = base64.b64encode(image_bytes).decode('utf-8')
     transcription_text = get_text_from_vocal(vocal_path)
     api_key = os.environ["MISTRAL_KEY"]
     client = Mistral(api_key=api_key)
